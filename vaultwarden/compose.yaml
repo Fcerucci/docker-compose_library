@@ -10,7 +10,7 @@ services:
     environment:
       - TZ=Europe/Rome
       - SIGNUPS_ALLOWED=false
-      - ADMIN_TOKEN=CHANGE_THIS_TO_A_LONG_RANDOM_PASSWORD
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
 
     labels:
       # only for traefik configuration

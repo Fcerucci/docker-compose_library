@@ -1,13 +1,17 @@
 services:
   hermes:
-    image: ghcr.io/entropy-research/hermes-agent:latest
+    image: nousresearch/hermes-agent:latest
     container_name: hermes
     hostname: hermes
 
     restart: unless-stopped
 
     ports:
+      # Gateway
       - "8085:8080"
+
+      # Dashboard Web
+      - "9119:9119"
 
     command: gateway run
 
@@ -15,13 +19,25 @@ services:
       - hermes_data:/opt/data
 
     environment:
-      - TZ=Europe/Rome
+      TZ: Europe/Rome
+
+      # Ativa o Dashboard
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: "0.0.0.0"
+      HERMES_DASHBOARD_PORT: "9119"
+
+      # Login do Dashboard
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: "admin"
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: "COLOQUE_SUA_SENHA_AQUI"
+
+      # Mantém as sessões válidas após reiniciar o container
+      HERMES_DASHBOARD_BASIC_AUTH_SECRET: "COLOQUE_UMA_CHAVE_SECRETA_AQUI"
 
       # Ollama
-      - OLLAMA_BASE_URL=http://ollama:11434
+      OLLAMA_BASE_URL: "http://ollama:11434"
 
       # Banco Vetorial
-      - QDRANT_URL=http://qdrant:6333
+      QDRANT_URL: "http://qdrant:6333"
 
     networks:
       - homelab
@@ -30,7 +46,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.hermes.rule=Host(`hermes.yourdomain.com`)"
       - "traefik.http.routers.hermes.entrypoints=websecure"
-      - "traefik.http.services.hermes.loadbalancer.server.port=8080"
+      - "traefik.http.services.hermes.loadbalancer.server.port=9119"
 
 volumes:
   hermes_data:
