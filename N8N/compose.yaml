@@ -1,0 +1,32 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+
+    ports:
+      - "5678:5678"
+
+    environment:
+      - TZ=Europe/Rome
+      - N8N_SECURE_COOKIE=false # only for N8N if is a homelab in production better use of HHTPS
+
+    labels:
+    # only for traefik configuration
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.yourdomain.com`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+
+    volumes:
+      - ./data:/home/node/.n8n
+
+    networks:
+      - homelab
+
+networks:
+  homelab:
+    external: true
+  # only for traefik configuration
+  traefik:
+    external: true 

@@ -1,0 +1,34 @@
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: stirling-pdf
+    hostname: stirlingpdf
+
+    restart: unless-stopped
+
+    ports:
+      - '4000:8080'
+
+    volumes:
+      - ./stirling-data/tessdata:/usr/share/tessdata  # OCR language files
+      - ./stirling-data/configs:/configs               # Settings & database
+      - ./stirling-data/logs:/logs                     # Application logs
+      - ./stirling-data/pipeline:/pipeline             # Automation configs for home lab is not necessary
+
+    environment:
+      - SECURITY_ENABLELOGIN=false      # Opt out of login (default is true / enabled)
+      - SYSTEM_DEFAULTLOCALE=en-GB      # Default interface language
+      - TZ=Europe/Rome
+    
+    networks:
+      - homelab
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stirlingpdf.rule=Host(`pdf.seudominio.com`)"
+      - "traefik.http.routers.stirlingpdf.entrypoints=websecure"
+      - "traefik.http.services.stirlingpdf.loadbalancer.server.port=8080"
+
+networks:
+  homelab:
+    external: true

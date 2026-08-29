@@ -1,0 +1,41 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    hostname: open-webui
+
+    restart: unless-stopped
+
+    ports:
+      - "3000:8080"
+
+    environment:
+      - TZ=Europe/Rome
+      - OLLAMA_BASE_URL=http://ollama:11434
+    
+     # only for traefik configuration
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.ollama.rule=Host(`ollama.yuordomain.com`)"
+    - "traefik.http.routers.ollama.entrypoints=websecure"
+    - "traefik.http.services.ollama.loadbalancer.server.port=11434"
+
+    volumes:
+      - open-webui_data:/app/backend/data
+
+    # only if ti's  at the same docker-compose
+    depends_on:
+      - ollama
+
+    networks:
+      - homelab
+
+volumes:
+  open-webui_data:
+
+networks:
+  homelab:
+    external: true
+  # only for traefik configuration
+  traefik:
+    external: true 

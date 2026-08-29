@@ -1,0 +1,40 @@
+services:
+  hermes:
+    image: ghcr.io/entropy-research/hermes-agent:latest
+    container_name: hermes
+    hostname: hermes
+
+    restart: unless-stopped
+
+    ports:
+      - "8085:8080"
+
+    command: gateway run
+
+    volumes:
+      - hermes_data:/opt/data
+
+    environment:
+      - TZ=Europe/Rome
+
+      # Ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+      # Banco Vetorial
+      - QDRANT_URL=http://qdrant:6333
+
+    networks:
+      - homelab
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hermes.rule=Host(`hermes.yourdomain.com`)"
+      - "traefik.http.routers.hermes.entrypoints=websecure"
+      - "traefik.http.services.hermes.loadbalancer.server.port=8080"
+
+volumes:
+  hermes_data:
+
+networks:
+  homelab:
+    external: true

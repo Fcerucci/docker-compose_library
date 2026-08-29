@@ -1,0 +1,36 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    hostname: ollama
+
+    restart: unless-stopped
+
+    ports:
+      - "11434:11434"
+
+    volumes:
+      - ollama_data:/root/.ollama
+
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h" #only for Ollama
+    
+  # only for traefik configuration
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.ollama.rule=Host(`ollama.yuordomain.com`)"
+    - "traefik.http.routers.ollama.entrypoints=websecure"
+    - "traefik.http.services.ollama.loadbalancer.server.port=11434"
+
+    networks:
+      - homelab
+
+volumes:
+  ollama_data:
+
+networks:
+  homelab:
+    external: true
+  # only for traefik configuration
+  traefik:
+    external: true 

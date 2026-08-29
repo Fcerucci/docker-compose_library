@@ -1,0 +1,35 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+
+    ports:
+      - "8081:80"
+
+    environment:
+      - TZ=Europe/Rome
+      - SIGNUPS_ALLOWED=false
+      - ADMIN_TOKEN=CHANGE_THIS_TO_A_LONG_RANDOM_PASSWORD
+
+    labels:
+      # only for traefik configuration
+      - "traefik.enable=true"
+      - "traefik.http.routers.vaultwarden.rule=Host(`vault.yourdomain.com`)"
+      - "traefik.http.routers.vaultwarden.entrypoints=websecure"
+      - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
+
+    volumes:
+      - ./data:/data
+
+    networks:
+      - homelab
+      - traefik
+
+networks:
+  homelab:
+    external: true
+
+  # only for traefik configuration
+  traefik:
+    external: true

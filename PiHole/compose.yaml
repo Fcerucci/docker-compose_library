@@ -1,0 +1,38 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: unless-stopped
+
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8080:80/tcp"
+
+    environment:
+      - TZ=Europe/Rome
+      - FTLCONF_webserver_api_password=CHANGE_THIS_PASSWORD
+      - FTLCONF_dns_listeningMode=all
+
+    labels:
+      # only for traefik configuration
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.yourdomain.com`)"
+      - "traefik.http.routers.pihole.entrypoints=websecure"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+
+    volumes:
+      - ./etc-pihole:/etc/pihole
+      - ./etc-dnsmasq.d:/etc/dnsmasq.d
+
+    networks:
+      - homelab
+      - traefik
+
+networks:
+  homelab:
+    external: true
+
+  # only for traefik configuration
+  traefik:
+    external: true
